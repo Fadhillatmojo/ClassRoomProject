@@ -78,7 +78,7 @@ class AssignmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $classid)
+    public function update(Request $request, $assignmentid)
     {
         try{
             $validated = $request->validate([
@@ -86,10 +86,13 @@ class AssignmentController extends Controller
                 'description' => 'required|max:100',
                 'due_date' => 'required|date'
             ]);
+            $assignment = Assignment::findOrFail($assignmentid);
+            $assignment->update($request->all());
+            return new AssignmentResource($assignment);
         } catch(Exception $e){
             return response()->json([
                 'message' => 'not found'
-            ],500);
+            ],404);
         }
     }
 
@@ -104,8 +107,8 @@ class AssignmentController extends Controller
             return response()->json(['message' => 'Data deleted']);
         }catch(Exception $e){
             return response()->json([
-                'error' => $e
-            ],500);
+                'message' => 'not found'
+            ],404);
         }
     }
 }

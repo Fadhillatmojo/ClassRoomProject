@@ -38,19 +38,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/assignments', [AssignmentController::class, 'index']);
             // hanya pemilik kelas yang bisa menambahkan assignment di dalamnya
             Route::post('/assignments/{classid}', [AssignmentController::class, 'store']);
-            // pemilik kelas yang bisa show assignment 
-            Route::get('/assignments/{id}', [AssignmentController::class, 'show']);
-            // hanya pemilik kelas yang bisa update assignmentnya
-            Route::patch('/assignments/{id}', [AssignmentController::class, 'update']);
-            // hanya pemilik kelas yang bisa delete assignments
-            Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy']);
         });
-        // pemilik assignment yang bisa show assignment 
-        Route::get('/assignments/{assignmentid}', [AssignmentController::class, 'show']);
-        // hanya pemilik kelas yang bisa update assignmentnya
-        Route::patch('/assignments/{assignmentid}', [AssignmentController::class, 'update']);
-        // hanya pemilik kelas yang bisa delete assignments
-        Route::delete('/assignments/{assignmentid}', [AssignmentController::class, 'destroy']);
+        Route::middleware(['assignment-owner'])->group(function () {
+            // pemilik assignment yang bisa show assignment 
+            Route::get('/assignments/{assignmentid}', [AssignmentController::class, 'show']);
+            // hanya pemilik kelas yang bisa update assignmentnya
+            Route::patch('/assignments/{assignmentid}', [AssignmentController::class, 'update']);
+            // hanya pemilik kelas yang bisa delete assignments
+            Route::delete('/assignments/{assignmentid}', [AssignmentController::class, 'destroy']);
+        });
 
     });
 
