@@ -40,9 +40,9 @@ class AssignmentController extends Controller
                 'title' => 'required|max:50',
                 'description' => 'required|max:100',
                 'due_date' => 'required|date',
-                'class_id' => 'required'
             ]);
             $request['teacher_id'] = Auth::user()->id;
+            $request['class_id'] = intval($request->route('classid'));
             $assignment = Assignment::create($request->all());
             return new AssignmentResource($assignment);
         }catch(Exception $e){

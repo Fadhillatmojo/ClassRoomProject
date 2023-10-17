@@ -19,8 +19,14 @@ class ClassRoomController extends Controller
      */
     public function index()
     {
-        $classes = ClassRoom::get();
-        return ClassRoomResource::collection($classes->loadMissing('teacher:id,username'));
+        try{
+            $classes = ClassRoom::get();
+            return ClassRoomResource::collection($classes->loadMissing('teacher:id,username'));
+        }catch(Exception $e){
+            return response()->json([
+                'message' => $e
+            ],404);
+        }
     }
 
     /**
@@ -36,13 +42,20 @@ class ClassRoomController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'=>'required|max:50',
-            'description'=> 'required|max:100'
-        ]);
-        $request['teacher_id'] = Auth::user()->id;
-        $class = ClassRoom::create($request->all());
-        return new ClassRoomResource($class->loadMissing('teacher:id,username'));
+        try{
+            $validated = $request->validate([
+                'name'=>'required|max:50',
+                'description'=> 'required|max:100'
+            ]);
+            $request['teacher_id'] = Auth::user()->id;
+            $class = ClassRoom::create($request->all());
+            return new ClassRoomResource($class->loadMissing('teacher:id,username'));
+
+        }catch(Exception $e){
+            return response()->json([
+                'message' => 'not found'
+            ],404);
+        }
     }
 
     /**
@@ -50,8 +63,14 @@ class ClassRoomController extends Controller
      */
     public function show($id)
     {
-        $class = ClassRoom::with('teacher:id,username')->findOrFail($id);
-        return new ClassRoomResource($class);
+        try{
+            $class = ClassRoom::with('teacher:id,username')->findOrFail($id);
+            return new ClassRoomResource($class);
+        } catch(Exception $e){
+            return response()->json([
+                'message' => 'not found'
+            ],404);
+        }
     }
 
     /**
@@ -67,13 +86,20 @@ class ClassRoomController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name'=>'required|max:50',
-            'description'=> 'required|max:100'
-        ]);
-        $class = ClassRoom::findOrFail($id);
-        $class->update($request->all());
-        return new ClassRoomResource($class);
+        try{
+            $validated = $request->validate([
+                'name'=>'required|max:50',
+                'description'=> 'required|max:100'
+            ]);
+            $class = ClassRoom::findOrFail($id);
+            $class->update($request->all());
+            return new ClassRoomResource($class);
+
+        }catch(Exception $e){
+            return response()->json([
+                'message' => 'not found'
+            ],404);
+        }
     }
 
     /**
@@ -96,8 +122,20 @@ class ClassRoomController extends Controller
 
     // get all students in class for class owner
     public function showStudents($id) {
-        $studentsClass = ClassRoom::with('students:id,username')->findOrFail($id);
-        return new StudentsClassResource($studentsClass);
+        try{
+            $classroom = ClassRoom::with('students:id,username')->findOrFail($id);
+            if (!$classroom) {
+                return response()->json(['message' => 'ClassRoom not found'], 404);
+            }
+            return response()->json([
+                'data'=>$classroom->students
+            ]);
+
+        }catch(Exception $e){
+            return response()->json([
+                'message' => 'not found'
+            ],404);
+        }
     }
 
     // follow class fun for student
