@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ClassRoomController;
+use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,17 +51,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // ini acces untuk middleware student untuk akses 
     Route::middleware(['student-access'])->group(function () {
-	    Route::post('/classes/{id}', [ClassRoomController::class, 'followClass']);
+        Route::post('/classes/{id}', [ClassRoomController::class, 'followClass']);
 
         // ini middleware untuk check apakah dia sudah follow class itu atau belom
         Route::middleware(['followed-class-check'])->group(function () {
             // hanya yang sudah follow kelaslah yang bisa liat assignment dalam kelas tersebut
             Route::get('/assignments', [AssignmentController::class, 'index']);
             // hanya yang sudah follow kelaslah yang bs show assignment secara detail
-            Route::get('/assignments/{id}', [AssignmentController::class, 'show']);
-        });
-    });
+            Route::get('/assignments/{classid}', [AssignmentController::class, 'show']);
 
+            // hanya ynag udah follow class lah yang bisa add submission
+            Route::get('/submissions', [SubmissionController::class, 'index']);
+            // route tambah submission
+            Route::post('/submissions', [SubmissionController::class, 'store']);
+        });
+        
+    });
+    
 });
 
 Route::post('/login', [UserController::class, 'login']);

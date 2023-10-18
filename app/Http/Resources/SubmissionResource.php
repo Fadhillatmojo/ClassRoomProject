@@ -14,6 +14,13 @@ class SubmissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id'=>$this->id,
+            'file'=>$this->file,
+            'text'=> $this->text,
+            'assignment_id'=> intval($this->assignment_id),
+            'student_id'=>$this->student_id,
+            'created_at'=>$this->created_at
+        ];
     }
 }
